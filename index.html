@@ -1,69 +1,428 @@
+
 <!DOCTYPE html>
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+<script src="scripts/d3.min.js"></script>
+
+<link rel="stylesheet" href = "styles/main.css">  </style>
+
 <html>
-<meta charset="utf-8">
-<style>
 
-.bar {
-  fill: steelblue;
-}
+<head>
+  <meta charset="UTF-8">
+<title>
+  CS 498 DDV Project
+</title>
 
-.bar:hover {
-  fill: brown;
-}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
-.axis--x path {
-  display: none;
-}
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-</style>
-<svg width="960" height="500"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
+</head>
 
-var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-    y = d3.scaleLinear().rangeRound([height, 0]);
+<body>
+<!-- <p>Here are the magic numbers from Lost: <span id="data"></span></p> -->
 
-var g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+<!-- <svg class="chart"></svg> -->
 
-d3.tsv("data.tsv", function(d) {
-  d.frequency = +d.frequency;
-  return d;
-}, function(error, data) {
-  if (error) throw error;
+<div class="pos_fixed">
+<p><a href="#Page1" class="scroller" id="Page1Marker"><span class="badge" style="background-color:darkgreen;" title="Introduction" id="Mark1">1</span></a><br/><a href="#Page2" class="scroller" id="Page2Marker" ><span class="badge" style="background-color:greenyellow;" id="Mark2" title="Overview">2</span></a>
+<!-- <a href="#Page3" class="scroller" id="Page3Marker" style="padding-top:-10px">.</a> -->
+</p>
+</div>
 
-  x.domain(data.map(function(d) { return d.letter; }));
-  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+<div id="Page1">
+  <div class="jumbotron" style="background-color: rgb(5, 48, 112) ; color: white">
+    <h2 style="padding-left : 2%"> How well do you know your cars </h2>
+</div>
 
-  g.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+  <div class="col-sm-offset-1 col-sm-10" >
+<div class="list-group">
+      <div class="list-group-item">
+        <h4 class="list-group-item-heading text-center" style="color:rgb(205, 49, 132)">Narrative Visualization Structure</h4>
+        <p class="list-group-item-text">The data set is an open source data that allows you explor the cars. </p>
+        <p class="list-group-item-text">This narrative visualization follow slideshow hybrid structure, which mixes author-lead and reader-read structures. &nbsp;There are two slides in total, during each slide, you can read the materials or you can just choose to conitune on if you are not interested in the details.</p>
+      </div>
+      <div class="list-group-item">
+        <h4 class="list-group-item-heading text-center" style="color:rgb(205, 49, 132)">Scenes</h4>
+        <p class="list-group-item-text">I have two slides and the scene is demonstrated by slide two. &nbsp;In this scene, I have the graph locating on the left with a coordinated set, and the the informations are on the right. </p>
+      </div>
+      <div class="list-group-item">
+        <h4 class="list-group-item-heading text-center" style="color:rgb(205, 49, 132)">&nbsp;</h4>
+        <p class="list-group-item-text">The scenes have been kept uniform in order to add a level of coherence for the user. The graph is placed on the left side of
+          the screen with information regarding the scenes, parameters, annotations and triggers on the right. Please look out for the <b>navigation markers</b> on the right to proceed.
+          Further information about the narrative visualization is on the next page.
+        </p>
+      </div>
+      <div class="list-group-item">
+        <h4 class="list-group-item-heading text-center" style="color:rgb(205, 49, 132)"> What Next ?</h4>
+        <p class="list-group-item-text text-center">Please click on the second unhighlighed badge ( number 2 in black) to your right to proceed</p>
+      </div>
+    </div>
+  </div>
 
-  g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y).ticks(10, "%"))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Frequency");
 
-  g.selectAll(".bar")
-    .data(data)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.letter); })
-      .attr("y", function(d) { return y(d.frequency); })
-      .attr("width", x.bandwidth())
-      .attr("height", function(d) { return height - y(d.frequency); });
-});
+</div>
 
-</script>
-</html>
+<div id="Page2" class="col-sm-12">
+
+<div class="col-sm-9">
+<svg id="scatterplot"></svg>
+</div>
+
+<div class="col-sm-3" style="max-height:100%">
+
+
+  <p>Please select countries for which you want to see social and economic growth in the next slide. <b>Click</b> on the Country
+    and it will appear in the region below this paragraph. <span class="text-danger">NOTE: Only 5 can be selected</span>
+  </p>
+  <div id="selected_countries">
+  </div>
+  <button class="col-sm-12 btn btn-success" id="ESIndicators" style="margin-top: 2%; margin-bottom: 2%" disabled>Let's see the Eco-Socio Indicators</button>
+
+  <div>
+    <h4 style="color : rgb(305, 49, 132)">Presets</h4>
+    <p>You can select one of the presets and click Add to Bucket to add it for analysis.<span class="text-danger">If you add a preset to your bucket any existing country added will be removed.</span></p>
+    <div class="form-group">
+      <!-- <label for="sel1">Select list:</label> -->
+      <select class="form-control" id="sel1">
+          <option>BRICS (Brazil, Russia, India, China, South Africa)</option>
+          <option>Highly Developed (USA, Canada, Germany, Australia, Denmark)</option>
+          <option>Least Developed (Afghanistan, Rwanda, Niger, Yemen, Bangladesh)</option>
+      </select>
+</div>
+  </div>
+
+  <div style="margin-top: 1%"><h5 style="color : rgb(205, 49, 132)">Visualization Structure</h5>
+    <div class="panel-group" id="accordion">
+  <div class="panel panel-default">
+    <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+      <h6 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+        Scenes</a>
+      </h6>
+    </div>
+    <div id="collapse1" class="panel-collapse collapse in">
+      <div class="panel-body">The data in this scene is for almost 200 countries. We try to contrast between the change in  population living in rural areas
+      between 1980 to 2014. The premise here is that a greater percentage change indicates greater urbanization which is an Indicator of development.</div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+      <h6 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+        Annotations</a>
+      </h6>
+    </div>
+    <div id="collapse2" class="panel-collapse collapse">
+      <div class="panel-body">The annotations here are the tooltips on each country. The tooltip gives information regarding the population in 1980 and 2014. It also
+        gives you the population of the country that can help you contrast the population migration vs the actual population.</div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+      <h6 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+        Parameters</a>
+      </h6>
+    </div>
+    <div id="collapse3" class="panel-collapse collapse">
+      <div class="panel-body">The parameters that you can select in this chart are the countries, you can select the countries you want to analyse. Clicking a country adds it to your bucket to process for further analysis.
+        You can also click on the button to take a deep dive into your selection.</div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+      <h6 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
+        Triggers</a>
+      </h6>
+    </div>
+    <div id="collapse4" class="panel-collapse collapse">
+      <div class="panel-body">The triggers are that if you select a country it gets added to your bucket. If you select the a continent from the legend the corresponding countries also get highlighted.</div>
+    </div>
+  </div>
+</div>
+    </div>
+
+</div>
+
+<div id="tooltip"></div>
+
+<!-- <button class="btn btn-success" id="clickme">Click</button> -->
+
+</div>
+<div style="clear:both"></div>
+<div id="Page3">
+  <div class="horizontal_scroll" id="Page3Part1">
+    <div class="col-sm-9">
+    <svg id="Soc_LE_Line"></svg>
+  </div>
+  <div class="col-sm-3">
+    <div style="margin-top: 1%"><h3 style="color : rgb(205, 49, 132)">Visualization Structure</h3>
+      <div class="panel-group" id="accordion1">
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion1" href="#collapse5">
+          Scenes</a>
+        </h6>
+      </div>
+      <div id="collapse5" class="panel-collapse collapse in">
+        <div class="panel-body">The data in this series of scenes is for the countries that you have selected from the screen above. In these scenes you will find a line graph
+          showing the growth of every country over the years. In these scenes I have also added the values for Low, Middle and High Income countries. These act as hybrid
+          annotations to provide a useful juxtaposition to judge the development of your selected countries.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion1" href="#collapse6">
+          Annotations</a>
+        </h6>
+      </div>
+      <div id="collapse6" class="panel-collapse collapse">
+        <div class="panel-body">The annotations here are the tooltips for each year. Please hover over any of the years and you will see the actual data value for that year for your selected country.
+          The tooltips are cleared once you move away from the selected year and line graph.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion1" href="#collapse7">
+          Parameters</a>
+        </h6>
+      </div>
+      <div id="collapse7" class="panel-collapse collapse">
+        <div class="panel-body">The parameter here is the page number which you can select to shift between the various indicators. These are the page numbers displayed on top. You also have the page
+          numbers on the right of your screen to change your country selection. You can also select any of the items from the legend to see it highlighted.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion1" href="#collapse8">
+          Triggers</a>
+        </h6>
+      </div>
+      <div id="collapse8" class="panel-collapse collapse">
+        <div class="panel-body">Once you select a page number from the above displayed numbers you will be shifted to the next indicator. If at any moment you feel like changing your selection you are free to do so
+          at which point you will be navigated back to the country selection page. On selecting a legend the corresponding data values are highlighted </div>
+      </div>
+    </div>
+  </div>
+      </div>
+  </div>
+    <div id="tooltip2">
+    </div>
+  </div>
+  <div class="horizontal_scroll" id="Page3Part2">
+    <div class="col-sm-9">
+    <svg id="Soc_IM_Line"></svg>
+  </div>
+  <div class="col-sm-3">
+    <div style="margin-top: 1%"><h3 style="color : rgb(205, 49, 132)">Visualization Structure</h3>
+      <div class="panel-group" id="accordion2">
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion2" href="#collapse9">
+          Scenes</a>
+        </h6>
+      </div>
+      <div id="collapse9" class="panel-collapse collapse in">
+        <div class="panel-body">The data in this series of scenes is for the countries that you have selected from the screen above. In these scenes you will find a line graph
+          showing the growth of every country over the years. In these scenes I have also added the values for Low, Middle and High Income countries. These act as hybrid
+          annotations to provide a useful juxtaposition to judge the development of your selected countries.
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion2" href="#collapse10">
+          Annotations</a>
+        </h6>
+      </div>
+      <div id="collapse10" class="panel-collapse collapse">
+        <div class="panel-body">The annotations here are the tooltips for each year. Please hover over any of the years and you will see the actual data value for that year for your selected country.
+          The tooltips are cleared once you move away from the selected year and line graph.
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion2" href="#collapse11">
+          Parameters</a>
+        </h6>
+      </div>
+      <div id="collapse11" class="panel-collapse collapse">
+        <div class="panel-body">The parameter here is the page number which you can select to shift between the various indicators. These are the page numbers displayed on top. You also have the page
+          numbers on the right of your screen to change your country selection. You can also select any of the items from the legend to see it highlighted.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion2" href="#collapse12">
+          Triggers</a>
+        </h6>
+      </div>
+      <div id="collapse12" class="panel-collapse collapse">
+        <div class="panel-body">Once you select a page number from the above displayed numbers you will be shifted to the next indicator. If at any moment you feel like changing your selection you are free to do so
+          at which point you will be navigated back to the country selection page. On selecting a legend the corresponding data values are highlighted
+        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+  </div>
+  </div>
+  <div class="horizontal_scroll" id="Page3Part3">
+    <div class="col-sm-9">
+    <svg id="Soc_SAN_Line"></svg>
+  </div>
+  <div class="col-sm-3">
+    <div style="margin-top: 1%"><h3 style="color : rgb(205, 49, 132)">Visualization Structure</h3>
+      <div class="panel-group" id="accordion3">
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion3" href="#collapse13">
+          Scenes</a>
+        </h6>
+      </div>
+      <div id="collapse13" class="panel-collapse collapse in">
+        <div class="panel-body">The data in this series of scenes is for the countries that you have selected from the screen above. In these scenes you will find a line graph
+          showing the growth of every country over the years. In these scenes I have also added the values for Low, Middle and High Income countries. These act as hybrid
+          annotations to provide a useful juxtaposition to judge the development of your selected countries.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion3" href="#collapse14">
+          Annotations</a>
+        </h6>
+      </div>
+      <div id="collapse14" class="panel-collapse collapse">
+        <div class="panel-body">The annotations here are the tooltips for each year. Please hover over any of the years and you will see the actual data value for that year for your selected country.
+          The tooltips are cleared once you move away from the selected year and line graph.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion3" href="#collapse15">
+          Parameters</a>
+        </h6>
+      </div>
+      <div id="collapse15" class="panel-collapse collapse">
+        <div class="panel-body">The parameter here is the page number which you can select to shift between the various indicators. These are the page numbers displayed on top. You also have the page
+          numbers on the right of your screen to change your country selection. You can also select any of the items from the legend to see it highlighted.</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+        <h6 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion3" href="#collapse16">
+          Triggers</a>
+        </h6>
+      </div>
+      <div id="collapse16" class="panel-collapse collapse">
+        <div class="panel-body">Once you select a page number from the above displayed numbers you will be shifted to the next indicator. If at any moment you feel like changing your selection you are free to do so
+          at which point you will be navigated back to the country selection page. On selecting a legend the corresponding data values are highlighted </div>
+      </div>
+    </div>
+  </div>
+      </div>
+  </div>
+  </div>
+  <div class="horizontal_scroll" id="Page3Part4">
+    <div class="col-sm-9">
+    <svg id="ECO_GNI"></svg>
+  </div>
+    <div class="col-sm-3">
+      <div style="margin-top: 1%"><h3 style="color : rgb(205, 49, 132)">Visualization Structure</h3>
+        <div class="panel-group" id="accordion4">
+      <div class="panel panel-default">
+        <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+          <h6 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion4" href="#collapse17">
+            Scenes</a>
+          </h6>
+        </div>
+        <div id="collapse17" class="panel-collapse collapse in">
+          <div class="panel-body">The data in this series of scenes is for the countries that you have selected from the screen above. In these scenes you will find a line graph
+            showing the growth of every country over the years. In these scenes I have also added the values for Low, Middle and High Income countries. These act as hybrid
+            annotations to provide a useful juxtaposition to judge the development of your selected countries.</div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+          <h6 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion4" href="#collapse18">
+            Annotations</a>
+          </h6>
+        </div>
+        <div id="collapse18" class="panel-collapse collapse">
+          <div class="panel-body">The annotations here are the tooltips for each year. Please hover over any of the years and you will see the actual data value for that year for your selected country.
+            The tooltips are cleared once you move away from the selected year and line graph.</div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+          <h6 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion4" href="#collapse19">
+            Parameters</a>
+          </h6>
+        </div>
+        <div id="collapse19" class="panel-collapse collapse">
+          <div class="panel-body">The parameter here is the page number which you can select to shift between the various indicators. These are the page numbers displayed on top. You also have the page
+            numbers on the right of your screen to change your country selection. You can also select any of the items from the legend to see it highlighted.</div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" style="background-color: rgb(205, 49, 132); color: white">
+          <h6 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion4" href="#collapse20">
+            Triggers</a>
+          </h6>
+        </div>
+        <div id="collapse20" class="panel-collapse collapse">
+          <div class="panel-body">Once you select a page number from the above displayed numbers you will be shifted to the next indicator. If at any moment you feel like changing your selection you are free to do so
+            at which point you will be navigated back to the country selection page. On selecting a legend the corresponding data values are highlighted.</div>
+        </div>
+      </div>
+    </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="fixed_horizontal" style="display:none">
+    <span>
+      <a href="#Page3Part1" class="h_scroller" id="Page3Part1Marker">
+        <span class="badge" style="background-color:red" title="Life Expectancy" id="SubMark1">1</span>
+      </a>
+      <a href="#Page3Part2" class="h_scroller" id="Page3Part2Marker">
+        <span class="badge" style="background-color:black" title="Infant Mortality" id="SubMark2">2</span>
+      </a>
+      <a href="#Page3Part3" class="h_scroller" id="Page3Part3Marker">
+        <span class="badge" style="background-color:black" title="Sanitation" id="SubMark3">3</span>
+      </a>
+      <a href="#Page3Part4" class="h_scroller" id="Page3Part4Marker">
+        <span class="badge" style="background-color:black" title="Gross National Income" id="SubMark4">4</span>
+      </a>
+    </span>
+  </div>
+  <div style="clear:both"></div>
+
+</div>
+<script src="scripts\main.js"></script>
+
+</body></html>
